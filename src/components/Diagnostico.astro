@@ -1,0 +1,177 @@
+---
+import Coche from './Coche.astro';
+import { empresa, extras, mailUrl, telUrl, zonas, type Zona } from '../data/empresa';
+import { ui, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = ui[lang].diag;
+
+/** Posición de cada punto sobre el dibujo (en % del viewBox 800×330). */
+const puntos: Record<Zona, [number, number]> = {
+  electricidad: [10.5, 60],
+  motor: [27, 56],
+  chapa: [52.5, 62],
+  frenos: [23.75, 79.4],
+  neumaticos: [76.25, 79.4],
+};
+---
+<div class="grid gap-6 lg:grid-cols-12 lg:items-start" data-diag data-lang={lang}>
+  <!-- Coche -->
+  <div class="min-w-0 lg:col-span-7">
+    <slot />
+    <div class="relative mt-10 sm:mt-12">
+      <Coche />
+      {zonas.map((z) => (
+        <button type="button" class="punt" data-punt={z} tabindex="-1" aria-hidden="true"
+          style={`left:${puntos[z][0]}%;top:${puntos[z][1]}%`}>
+          <span class="sr-only">{tx.zonas[z].nom}</span>
+        </button>
+      ))}
+    </div>
+    <fieldset class="mt-6">
+      <legend class="label flex items-center gap-2 text-groc"><span aria-hidden="true" class="inline-block size-2 rounded-full bg-groc"></span>{tx.instruccion}</legend>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {zonas.map((z) => (
+          <label class="xip">
+            <input type="checkbox" name="zona" value={z} class="sr-only" />
+            <span>{tx.zonas[z].nom}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- Orden de reparación -->
+  <div class="tiquet min-w-0 text-nit lg:sticky lg:top-24 lg:col-span-5 xl:col-span-4 xl:col-start-9">
+    <div class="flex items-start justify-between gap-4 border-b-2 border-dashed border-linia pb-4">
+      <div>
+        <p class="label text-blau">{empresa.name}</p>
+        <p class="titol mt-1 text-3xl">{tx.titulo}</p>
+      </div>
+      <dl class="shrink-0 text-right font-mono text-xs text-gris">
+        <div><dt class="inline">{tx.num} </dt><dd class="inline" data-num>0001</dd></div>
+        <div><dt class="inline">{tx.fecha} </dt><dd class="inline" data-fecha>—</dd></div>
+      </dl>
+    </div>
+
+    <label class="mt-4 block">
+      <span class="label text-[0.7rem] text-gris">{tx.vehiculo}</span>
+      <input type="text" name="vehiculo" autocomplete="off" maxlength="60" placeholder={tx.placeholder}
+        class="mt-1 block w-full border-b-2 border-nit/20 bg-transparent py-1.5 font-mono text-base outline-none placeholder:text-gris/60 focus:border-blau" />
+    </label>
+
+    <p class="label mt-5 text-[0.7rem] text-gris">{tx.trabajos}</p>
+    <ul class="mt-2 space-y-2" data-lista>
+      {zonas.map((z) => (
+        <li data-item={z} hidden class="item flex gap-3">
+          <span aria-hidden="true" class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-sm bg-blau text-xs font-bold text-white">✓</span>
+          <span><span class="block font-semibold">{tx.zonas[z].nom}</span><span class="block text-sm text-gris">{tx.zonas[z].sint}</span></span>
+        </li>
+      ))}
+    </ul>
+    <p data-vacio class="mt-2 rounded-sm bg-nau px-3 py-3 font-mono text-sm text-gris">{tx.vacio}</p>
+
+    <fieldset class="mt-5">
+      <legend class="label text-[0.7rem] text-gris">{tx.opciones}</legend>
+      <div class="mt-2 grid gap-1">
+        {extras.map((x) => (
+          <label class="flex min-h-10 cursor-pointer items-center gap-3 text-[0.95rem]">
+            <input type="checkbox" name="extra" value={x} class="size-5 shrink-0 accent-blau" />
+            {tx.extras[x]}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <a href={mailUrl(tx.asunto)} data-cta class="btn btn-blau mt-6 w-full">{tx.cta} <span aria-hidden="true">→</span></a>
+    <p class="mt-3 text-center text-sm text-gris">{tx.o} <a href={telUrl} class="font-semibold text-blau underline-offset-4 hover:underline tabular-nums">{empresa.phone.display}</a></p>
+  </div>
+</div>
+
+<style>
+  .punt {
+    position: absolute; width: 2.25rem; height: 2.25rem; margin: -1.125rem 0 0 -1.125rem; border-radius: 999px;
+    background: var(--color-groc); box-shadow: 0 0 0 4px rgb(18 23 53 / 0.9); cursor: pointer; transition: transform 200ms;
+  }
+  .punt::before { content: ''; position: absolute; inset: 0.6rem; border-radius: 999px; background: var(--color-nit); transition: transform 250ms; }
+  .punt::after { content: ''; position: absolute; inset: -6px; border-radius: 999px; border: 2px solid var(--color-groc); opacity: 0; }
+  .punt:hover { transform: scale(1.12); }
+  .punt[data-on] { background: #fff; }
+  .punt[data-on]::before { transform: scale(0); }
+  @media (prefers-reduced-motion: no-preference) {
+    .punt:not([data-on])::after { animation: ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; animation-delay: calc(var(--d, 0) * 1s); }
+    @keyframes ping { 0% { opacity: 0.9; transform: scale(0.8); } 80%, 100% { opacity: 0; transform: scale(1.7); } }
+  }
+  @media (max-width: 639px) {
+    .punt { width: 1.6rem; height: 1.6rem; margin: -0.8rem 0 0 -0.8rem; box-shadow: 0 0 0 3px rgb(18 23 53 / 0.9); }
+    .punt::before { inset: 0.45rem; }
+  }
+  .xip span {
+    display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0 1rem; border-radius: 999px;
+    border: 1.5px solid rgb(255 255 255 / 0.35); font-weight: 600; cursor: pointer; transition: background-color 200ms, color 200ms, border-color 200ms;
+  }
+  .xip span::before { content: '+'; font-weight: 700; color: var(--color-groc); }
+  .xip:hover span { border-color: #fff; }
+  .xip input:checked + span { background: var(--color-groc); border-color: var(--color-groc); color: var(--color-nit); }
+  .xip input:checked + span::before { content: '✓'; color: var(--color-nit); }
+  .xip input:focus-visible + span { outline: 3px solid var(--color-groc); outline-offset: 3px; }
+  .tiquet {
+    position: relative; background: #fff; padding: 1.75rem 1.5rem 1.5rem; border-radius: 0.25rem;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.6);
+    -webkit-mask: radial-gradient(circle 6px at 50% 0, transparent 98%, #000) top / 20px 100% repeat-x;
+    mask: radial-gradient(circle 6px at 50% 0, transparent 98%, #000) top / 20px 100% repeat-x;
+  }
+  @media (min-width: 640px) { .tiquet { padding: 2rem 2rem 1.75rem; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .item:not([hidden]) { animation: entra 400ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    @keyframes entra { from { opacity: 0; transform: translateY(-6px); } }
+  }
+</style>
+
+<script>
+  import { empresa } from '../data/empresa';
+  import { ui, type Lang } from '../i18n/ui';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-diag]')) {
+    const lang = (root.dataset.lang ?? 'es') as Lang;
+    const tx = ui[lang].diag;
+    const zonasIn = [...root.querySelectorAll<HTMLInputElement>('input[name=zona]')];
+    const extrasIn = [...root.querySelectorAll<HTMLInputElement>('input[name=extra]')];
+    const vehiculo = root.querySelector<HTMLInputElement>('input[name=vehiculo]')!;
+    const cta = root.querySelector<HTMLAnchorElement>('[data-cta]')!;
+    const vacio = root.querySelector<HTMLElement>('[data-vacio]')!;
+
+    const hoy = new Date();
+    root.querySelector('[data-fecha]')!.textContent = hoy.toLocaleDateString(lang === 'ca' ? 'ca-ES' : 'es-ES');
+    root.querySelector('[data-num]')!.textContent = String(hoy.getDate() * 100 + hoy.getMonth() + 1).padStart(4, '0');
+
+    root.querySelectorAll<HTMLElement>('[data-punt]').forEach((p, i) => {
+      p.style.setProperty('--d', String(i * 0.35));
+      p.addEventListener('click', () => {
+        const input = zonasIn.find((z) => z.value === p.dataset.punt);
+        if (input) { input.checked = !input.checked; actualiza(); }
+      });
+    });
+
+    const actualiza = () => {
+      const sel = zonasIn.filter((z) => z.checked).map((z) => z.value);
+      for (const z of zonasIn) {
+        const on = z.checked;
+        root.querySelectorAll(`[data-z="${z.value}"]`).forEach((el) => el.classList.toggle('on', on));
+        root.querySelector<HTMLElement>(`[data-punt="${z.value}"]`)?.toggleAttribute('data-on', on);
+        root.querySelector<HTMLElement>(`[data-item="${z.value}"]`)!.hidden = !on;
+      }
+      vacio.hidden = sel.length > 0;
+      const nombres = zonasIn.filter((z) => z.checked).map((z) => {
+        const k = z.value as keyof typeof tx.zonas;
+        return tx.zonas[k].nom;
+      });
+      const ext = extrasIn.filter((x) => x.checked).map((x) => tx.extras[x.value as keyof typeof tx.extras]);
+      const cos = tx.mail(nombres, ext, vehiculo.value.trim());
+      cta.href = `mailto:${empresa.email}?subject=${encodeURIComponent(tx.asunto)}&body=${encodeURIComponent(cos)}`;
+    };
+    root.addEventListener('change', actualiza);
+    vehiculo.addEventListener('input', actualiza);
+    actualiza();
+  }
+</script>

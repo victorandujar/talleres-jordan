@@ -1,0 +1,68 @@
+---
+/**
+ * Coche de perfil dibujado como plano técnico. Cada zona tiene una forma
+ * resaltable ([data-z]) recortada por la carrocería.
+ */
+const carroceria =
+  'M62 252 L58 214 C58 196 70 186 92 182 L296 156 C330 132 360 112 392 96 C420 88 560 86 592 92 C620 104 660 130 690 152 C720 160 738 170 742 196 L744 240 C744 248 740 252 732 252 L665 252 A56 56 0 1 0 555 252 L245 252 A56 56 0 1 0 135 252 Z';
+const rueda = (cx: number) => ({ cx, cy: 262 });
+const radios = (cx: number) =>
+  Array.from({ length: 5 }, (_, i) => {
+    const a = (i * 72 - 90) * (Math.PI / 180);
+    return `M${(cx + Math.cos(a) * 8).toFixed(1)} ${(262 + Math.sin(a) * 8).toFixed(1)} L${(cx + Math.cos(a) * 26).toFixed(1)} ${(262 + Math.sin(a) * 26).toFixed(1)}`;
+  }).join(' ');
+const ruedas = [rueda(190), rueda(610)];
+---
+<svg viewBox="0 0 800 330" class="coche block h-auto w-full" aria-hidden="true">
+  <defs>
+    <clipPath id="clip-carroceria"><path d={carroceria} /></clipPath>
+  </defs>
+  <!-- cotas -->
+  <g class="cota" stroke="currentColor" fill="none" stroke-width="1">
+    <path d="M58 30 V60 M744 30 V60 M58 45 H744" stroke-dasharray="4 5" />
+    <path d="M778 92 H762 M778 310 H762 M770 92 V310" stroke-dasharray="4 5" />
+  </g>
+  <ellipse cx="400" cy="314" rx="360" ry="8" fill="#000" opacity="0.35" />
+  <!-- zonas resaltables -->
+  <g clip-path="url(#clip-carroceria)">
+    <path data-z="motor" class="zona" d="M40 188 L296 154 L304 252 L40 252 Z" />
+    <path data-z="chapa" class="zona" d="M304 150 L760 150 L760 252 L304 252 Z" />
+  </g>
+  <path data-z="electricidad" class="zona" d="M64 196 C80 190 100 186 120 186 L113 206 L62 212 Z" />
+  <circle data-z="frenos" class="zona" cx="190" cy="262" r="30" />
+  <circle data-z="neumaticos" class="zona zona-ring" cx="610" cy="262" r="37" />
+  <!-- carrocería -->
+  <g class="traz" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d={carroceria} pathLength="1" class="dibuja" />
+    <path d="M318 156 L396 104 C420 98 460 97 498 97 L498 156 Z" class="vidre" />
+    <path d="M512 97 C545 97 572 98 588 102 C615 118 640 136 656 152 L512 156 Z" class="vidre" />
+    <path d="M306 158 L300 250 M505 97 L505 250 M296 162 L688 158" stroke-width="1.6" />
+    <path d="M440 176 h26 M560 176 h26" stroke-width="3" />
+    <path d="M318 156 l-14 -8 l18 -6" stroke-width="2" />
+    <path d="M64 196 C80 190 100 186 120 186 L113 206 L62 212 Z" stroke-width="2" />
+    <path d="M728 166 L742 178 L743 206 L730 204 Z" stroke-width="2" />
+    <path d="M58 232 H122 M698 232 H744" stroke-width="1.6" />
+    {ruedas.map((r) => (
+      <g>
+        <circle cx={r.cx} cy={r.cy} r="46" />
+        <circle cx={r.cx} cy={r.cy} r="28" stroke-width="1.8" />
+        <circle cx={r.cx} cy={r.cy} r="6" stroke-width="1.8" />
+        <path d={radios(r.cx)} stroke-width="1.6" />
+      </g>
+    ))}
+  </g>
+</svg>
+
+<style>
+  .coche { color: rgb(255 255 255 / 0.92); overflow: visible; }
+  .cota { opacity: 0.28; }
+  .vidre { fill: rgb(255 255 255 / 0.06); }
+  .zona { fill: var(--color-groc); opacity: 0; transition: opacity 350ms ease; }
+  .zona-ring { fill: none; stroke: var(--color-groc); stroke-width: 18; }
+  .zona.on { opacity: 0.45; }
+  .dibuja { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .js .dibuja { animation: dibuja 2.2s cubic-bezier(0.6, 0, 0.2, 1) both; }
+    @keyframes dibuja { from { stroke-dashoffset: 1; } }
+  }
+</style>

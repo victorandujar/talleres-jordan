@@ -1,0 +1,10 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { empresa } from '../../data/empresa';
+---
+<Legal title="Privacitat" lang="ca" alternates={{ es: '/privacidad', ca: '/ca/privacitat' }}>
+  <h2>Dades que tractem</h2>
+  <p>Aquest web no té formularis ni galetes de seguiment. L’ordre de reparació s’omple al teu navegador i només s’envia si tu envies el correu. Si ens escrius o ens truques, fem servir les teves dades únicament per respondre’t i donar-te cita.</p>
+  <h2>Responsable</h2>
+  <p>{empresa.nameCa} · {empresa.email}. Pots demanar l’accés, la rectificació o la supressió de les teves dades escrivint a aquest correu.</p>
+</Legal>

@@ -1,0 +1,29 @@
+---
+import logo from '../assets/logo.svg';
+import { empresa, telUrl } from '../data/empresa';
+import { ui, home, type Lang } from '../i18n/ui';
+interface Props { lang: Lang; alternates?: Record<Lang, string> }
+const { lang, alternates = { es: '/', ca: '/ca' } } = Astro.props;
+const tx = ui[lang];
+const links = [['cita', tx.nav.cita], ['servicios', tx.nav.servicios], ['para', tx.nav.para], ['contacto', tx.nav.contacto]] as const;
+---
+<header class="sticky top-0 z-40 border-b border-linia bg-nau/92 backdrop-blur">
+  <div class="mx-auto flex h-[4.75rem] max-w-[90rem] items-center justify-between gap-4 px-4 sm:px-8">
+    <a href={home(lang)} class="flex min-w-0 items-center" aria-label={lang === 'ca' ? empresa.nameCa : empresa.name}>
+      <img src={logo.src} width="116" height="55" alt="" class="h-14 w-auto" />
+    </a>
+    <nav aria-label={tx.nav.principal} class="hidden lg:block">
+      <ul class="flex gap-7 font-semibold">
+        {links.map(([id, t]) => <li><a href={`${home(lang)}#${id}`} class="hover:text-blau">{t}</a></li>)}
+      </ul>
+    </nav>
+    <div class="flex items-center gap-3">
+      <ul class="flex overflow-hidden rounded-md border-2 border-nit text-sm font-bold" aria-label={tx.nav.idioma}>
+        {(['es', 'ca'] as const).map((l) => (
+          <li><a href={alternates[l]} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined} class={`block px-2.5 py-1 uppercase ${l === lang ? 'bg-nit text-white' : 'hover:bg-nau-2'}`}>{l}</a></li>
+        ))}
+      </ul>
+      <a href={telUrl} class="btn btn-blau hidden min-h-11 px-5 tabular-nums sm:inline-flex">{empresa.phone.display}</a>
+    </div>
+  </div>
+</header>

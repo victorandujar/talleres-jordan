@@ -1,0 +1,10 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { empresa } from '../data/empresa';
+---
+<Legal title="Aviso legal" lang="es" alternates={{ es: '/aviso-legal', ca: '/ca/avis-legal' }}>
+  <h2>Titular del sitio web</h2>
+  <p>{empresa.name} · NIF: <mark>pendiente</mark><br />{empresa.street}, {empresa.area}, {empresa.postalCode} {empresa.city} ({empresa.region}) · Teléfono: {empresa.phone.display} · Email: {empresa.email}</p>
+  <h2>Propiedad intelectual</h2>
+  <p>El logotipo pertenece a {empresa.name}. Las ilustraciones son propias de esta web. Magneti Marelli y Checkstar son marcas de sus respectivos titulares.</p>
+</Legal>
