@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+import '@fontsource-variable/figtree';
+import '@fontsource-variable/saira/wdth.css';
+import font from '@fontsource-variable/saira/files/saira-latin-wdth-normal.woff2?url';
+import Seo from '../components/Seo.astro';
+import { isDemo } from '../lib/site';
+import { empresa } from '../data/empresa';
+import { ui, type Lang } from '../i18n/ui';
+
+interface Props { title: string; description: string; lang: Lang; alternates?: Record<Lang, string> }
+const { title, description, lang, alternates } = Astro.props;
+const tx = ui[lang];
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js')</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121735" />
+    <link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo title={title} description={description} locale={lang === 'ca' ? 'ca_ES' : 'es_ES'} />
+    {alternates && Object.entries(alternates).map(([l, href]) => <link rel="alternate" hreflang={l} href={new URL(href, Astro.site)} />)}
+    {alternates && <link rel="alternate" hreflang="x-default" href={new URL(alternates.es, Astro.site)} />}
+    <slot name="head" />
+  </head>
+  <body class="min-h-dvh">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:bg-nit focus:px-4 focus:py-2 focus:text-white">{tx.skip}</a>
+    {isDemo && (
+      <aside aria-label={tx.demo} class="relative z-50 bg-groc text-nit">
+        <p class="label mx-auto max-w-[90rem] px-4 py-2 text-center text-[0.68rem]">{tx.demo}<span class="hidden sm:inline"> · {tx.demoBy} {empresa.name}</span></p>
+      </aside>
+    )}
+    <slot />
+    <script>
+      import '../scripts/reveal';
+    </script>
+  </body>
+</html>

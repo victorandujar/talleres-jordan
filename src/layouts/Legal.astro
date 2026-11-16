@@ -1,0 +1,18 @@
+---
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Lang } from '../i18n/ui';
+interface Props { title: string; lang: Lang; alternates: Record<Lang, string> }
+const { title, lang, alternates } = Astro.props;
+const nota = lang === 'ca' ? 'Text provisional de la proposta, pendent de revisió pel taller.' : 'Texto provisional de la propuesta, pendiente de revisión por el taller.';
+---
+<Base title={`${title} · Talleres Jordan`} description={`${title} · Talleres Jordan`} lang={lang} alternates={alternates}>
+  <Header lang={lang} alternates={alternates} />
+  <main id="contenido" class="mx-auto max-w-3xl px-4 py-20 sm:px-8 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_p]:mt-4 [&_p]:text-gris">
+    <h1 class="titol text-6xl">{title}</h1>
+    <p class="rounded bg-nau-2 p-4 text-sm">{nota}</p>
+    <slot />
+  </main>
+  <Footer lang={lang} />
+</Base>
