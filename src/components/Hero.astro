@@ -1,0 +1,21 @@
+---
+import Diagnostico from './Diagnostico.astro';
+import { empresa, telUrl } from '../data/empresa';
+import { ui, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = ui[lang].hero;
+---
+<section id="cita" class="plano scroll-mt-16 overflow-x-clip text-white" aria-labelledby="hero-t">
+  <div class="mx-auto max-w-[90rem] px-4 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-14">
+    <Diagnostico lang={lang}>
+      <p class="label text-groc">{tx.eyebrow}</p>
+      <h1 id="hero-t" class="titol mt-5 text-[clamp(2.9rem,6.4vw,6rem)]">{tx.t1} <span class="text-groc">{tx.t2}</span></h1>
+      <div class="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+        <p class="max-w-md text-lg text-white/80">{tx.text}</p>
+        <a href={telUrl} class="btn btn-line text-white">{tx.llamar} <span class="tabular-nums">{empresa.phone.display}</span></a>
+      </div>
+    </Diagnostico>
+  </div>
+  <div class="franja h-3" aria-hidden="true"></div>
+</section>

@@ -1,0 +1,12 @@
+---
+import { home } from '../i18n/ui';
+import { telUrl } from '../data/empresa';
+import { ui, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = ui[lang];
+---
+<nav aria-label={tx.bar.aria} class="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 lg:hidden">
+  <a href={`${home(lang)}#cita`} class="flex min-h-14 items-center justify-center bg-nit font-semibold text-white">{tx.nav.cita}</a>
+  <a href={telUrl} class="flex min-h-14 items-center justify-center bg-groc font-semibold text-nit">{tx.bar.llamar}</a>
+</nav>
